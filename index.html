@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f4f6f4">
+<title>문단결 — 블로그 자동편집기</title>
+<style>
+:root { --ink:#182521; --muted:#78837d; --line:#dce4de; --paper:#ffffff; --canvas:#f5f7f4; --accent:#237a62; --accent-light:#e8f3ec; --shadow:0 12px 40px rgba(22,43,35,.05); }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+[hidden] { display:none!important; }
+body { margin:0; color:var(--ink); background:var(--canvas); font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; font-size:14px; -webkit-font-smoothing:antialiased; }
+button,input,textarea,select { font:inherit; }
+button { cursor:pointer; }
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible { outline:3px solid #a8cdbb; outline-offset:2px; }
+.site-header { border-bottom:1px solid var(--line); background:rgba(255,255,255,.88); }
+.header-inner { max-width:1536px; padding:23px 34px 22px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.brand { display:flex; align-items:center; gap:14px; }
+.brand-mark { width:40px; height:40px; border-radius:13px; display:grid; place-items:center; color:#fff; background:var(--accent); font-weight:800; font-size:20px; letter-spacing:-.1em; padding-right:3px; }
+.brand-name { font-size:20px; font-weight:800; letter-spacing:-.065em; line-height:1.1; }
+.brand-tag { font-size:12px; color:var(--muted); margin-top:5px; letter-spacing:-.012em; }
+.privacy { border-radius:100px; border:1px solid #d9e6dc; padding:8px 12px; display:flex; gap:7px; align-items:center; color:#527161; font-size:12px; font-weight:600; background:#f7fcf8; white-space:nowrap; }
+.privacy-dot { width:6px;height:6px; background:#459d70; border-radius:50%; }
+.shell { max-width:1536px; margin:0 auto; padding:27px 34px 64px; }
+.hero { display:flex; align-items:end; justify-content:space-between; gap:22px; padding-bottom:25px; }
+.eyebrow { font-size:11px; font-weight:800; color:var(--accent); letter-spacing:.16em; text-transform:uppercase; margin-bottom:11px; }
+h1 { font-size:clamp(24px,2.6vw,36px); line-height:1.3; margin:0; letter-spacing:-.075em; font-weight:800; }
+.hero p { margin:11px 0 0; color:#728179; font-size:14px; line-height:1.7; }
+.flow-note { display:flex; align-items:center; gap:10px; color:#849187; font-size:12px; padding-bottom:6px; white-space:nowrap; }
+.flow-note strong { color:#3c624f; background:#e6eee8; border-radius:8px; padding:7px 9px; font-weight:750; }
+.flow-arrow { color:#aab6ad; }
+.workspace { display:grid; grid-template-columns:minmax(340px,.86fr) minmax(460px,1.14fr); align-items:start; gap:20px; }
+.panel { background:#fff; border:1px solid #e2e8e1; border-radius:18px; box-shadow:var(--shadow); overflow:hidden; }
+.panel-head { display:flex; justify-content:space-between; gap:16px; align-items:center; padding:23px 26px 18px; }
+.panel-number { color:#71a08a; font-weight:800; font-size:12px; letter-spacing:.04em; }
+.panel-title { font-size:17px; font-weight:800; letter-spacing:-.045em; margin-left:8px; }
+.panel-help { font-size:12px; color:#84938a; }
+.panel-body { padding:0 26px 25px; }
+.field-heading { display:flex; justify-content:space-between; align-items:center; gap:8px; margin:2px 0 9px; font-size:12.5px; font-weight:750; color:#425d4c; }
+.field-sub { color:#9aa9a0; font-weight:500; font-size:11px; }
+.text-input { width:100%; border:1px solid #dbe4dc; background:#fbfcfa; color:#223b2b; border-radius:11px; padding:13px 15px; min-height:46px; transition:border-color .15s, box-shadow .15s; }
+.text-input:focus { outline:none; border-color:#76b998; box-shadow:0 0 0 4px rgba(81,143,109,.12); }
+.source-input { width:100%; resize:vertical; min-height:440px; padding:19px 18px; border:1px solid #dbe4dc; border-radius:12px; background:#fcfdfb; outline:none; font-family:inherit; font-size:14.2px; line-height:1.95; color:#263d30; letter-spacing:-.018em; white-space:pre-wrap; }
+.source-input::placeholder { color:#9ba9a0; }
+.source-input:focus { border-color:#76b998; box-shadow:0 0 0 4px rgba(81,143,109,.1); }
+.input-foot { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; }
+.muted { color:#8b9b91; font-size:12px; }
+.link-button { background:transparent; color:#517b65; border:none; padding:5px 2px; font-size:12px; font-weight:700; text-decoration:underline; text-decoration-color:#c5dacb; text-underline-offset:4px; }
+.inline-actions { display:flex; gap:15px; }
+.divider { border:0; height:1px; background:#eef1ed; margin:22px 0; }
+.settings-title { font-weight:800; font-size:13px; letter-spacing:-.02em; margin-bottom:15px; }
+.controls { display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+.control-name { display:block; color:#75867b; margin-bottom:8px; font-size:12px; font-weight:650; }
+.control { width:100%; border:1px solid #dce5dd; border-radius:9px; height:42px; color:#3c5343; padding:0 10px; background:#fff; outline:none; }
+.checks { display:flex; flex-wrap:wrap; gap:10px 17px; margin-top:16px; }
+.check { font-size:12px; color:#56695b; display:inline-flex; gap:7px; align-items:center; cursor:pointer; user-select:none; }
+.check input { accent-color:#2a8367; width:15px; height:15px; }
+.small-note { margin:13px 0 0; font-size:12px; color:#9aa69e; line-height:1.7; }
+.primary { width:100%; border:0; background:#237a62; color:#fff; border-radius:11px; font-size:15px; font-weight:800; padding:16px 12px; margin-top:22px; box-shadow:0 7px 16px rgba(35,122,98,.17); transition:transform .12s,background .12s; }
+.primary:hover { background:#1b694f; transform:translateY(-1px); }
+.primary:active { transform:translateY(0); }
+.primary svg { vertical-align:middle; margin-left:4px; }
+.result-head { border-bottom:1px solid #edf0ed; }
+.preview-tools { display:flex; align-items:center; gap:7px; }
+.toggle { background:#f3f6f2; padding:4px; border-radius:9px; display:flex; gap:2px; }
+.toggle button { border:0; background:transparent; border-radius:7px; padding:7px 12px; color:#84958a; font-weight:750; font-size:12px; }
+.toggle button[aria-pressed="true"] { background:white; box-shadow:0 1px 5px rgba(28,58,36,.1); color:#246e55; }
+.preview-area { background:#f5f7f5; border-bottom:1px solid #edf0ed; padding:32px 28px 36px; min-height:585px; display:flex; align-items:stretch; justify-content:center; overflow:auto; transition:padding .2s; }
+.paper { background:white; width:100%; max-width:730px; min-height:510px; padding:52px 57px 65px; border:1px solid #edf0ed; box-shadow:0 7px 30px rgba(17,40,28,.055); border-radius:3px; transition:max-width .2s,padding .2s; }
+.preview-area.phone { background:#e8ece9; }
+.preview-area.phone .paper { max-width:392px; min-height:630px; padding:35px 25px 46px; border:6px solid #353c36; border-radius:30px; box-shadow:0 14px 36px rgba(21,37,27,.16); }
+.post-title { font-size:30px; font-weight:800; line-height:1.5; letter-spacing:-.07em; margin:0 0 36px; color:#1c3328; word-break:keep-all; overflow-wrap:anywhere; }
+.article { outline:none; word-break:keep-all; overflow-wrap:anywhere; color:#35423b; font-size:17px; line-height:2.02; letter-spacing:-.024em; min-height:170px; white-space:pre-wrap; }
+.article:focus { outline:2px dashed #bdd3c4; outline-offset:8px; }
+.article p { margin:0 0 26px; }
+.article h2 { color:#176b54; font-size:23px; font-weight:800; line-height:1.48; margin:45px 0 18px; letter-spacing:-.065em; }
+.article h2:first-child { margin-top:0; }
+.article h3 { font-size:19px; font-weight:750; margin:36px 0 15px; }
+.article strong { color:#244835; font-weight:800; }
+.article em { font-style:italic; }
+.article blockquote { border-left:3px solid #7bae93; background:#f3f8f4; border-radius:0 9px 9px 0; padding:18px 22px; margin:27px 0 30px; color:#44614c; font-size:.97em; }
+.article ul, .article ol { margin:0 0 27px; padding-left:25px; }
+.article li { margin:0 0 9px; padding-left:3px; }
+.article a { color:#216d59; text-decoration:underline; text-underline-offset:3px; overflow-wrap:anywhere; }
+.article hr { border:0; height:1px; background:#dae6dd; margin:40px 0; }
+.article .ref { font-size:.85em; color:#69796b; line-height:1.8; margin:0 0 12px; overflow-wrap:anywhere; }
+.article .ref a { color:#567965; }
+.paper[data-style="warm"] .post-title, .paper[data-style="warm"] .article { font-family:'Iowan Old Style','Apple SD Gothic Neo','Noto Serif KR','Nanum Myeongjo','Batang',serif; }
+.paper[data-style="warm"] .article { color:#51483c; }
+.paper[data-style="warm"] .article h2, .paper[data-style="warm"] .article a { color:#986342; }
+.paper[data-style="warm"] .article strong { color:#855438; }
+.paper[data-style="warm"] .article blockquote { border-left-color:#c8aa82; background:#faf6ee; color:#786048; }
+.paper[data-style="warm"] .article hr { background:#e6d7c6; }
+.paper[data-style="info"] .article h2 { border-left:4px solid #3078aa; padding-left:13px; color:#2c628c; }
+.paper[data-style="info"] .article strong { color:#205c87; }
+.paper[data-style="info"] .article blockquote { border-left-color:#8bb2d0; background:#f0f6fb; color:#3d5f7a; }
+.paper[data-style="info"] .article a { color:#2b7299; }
+.preview-area.phone .post-title { font-size:25px; line-height:1.48; margin-bottom:28px; }
+.preview-area.phone .article { font-size:16.2px; line-height:1.9; }
+.preview-area.phone .article h2 { font-size:21px; margin:34px 0 16px; }
+.preview-area.phone .article h3 { font-size:18px; }
+.preview-area.phone .article p { margin-bottom:22px; }
+.empty { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; min-height:420px; user-select:none; color:#95a49b; }
+.empty-mark { display:grid; place-items:center; width:74px; height:74px; background:#f1f7f2; border-radius:24px; color:#8fae96; margin-bottom:26px; font-size:30px; }
+.empty h3 { color:#657d6d; margin:0 0 11px; font-size:17px; }
+.empty p { line-height:1.8; font-size:13px; margin:0; }
+.preview-panel { overflow:visible; }
+.output-tools { padding:14px 26px 15px; background:#fff; border-bottom:1px solid #e8eee9; position:sticky; top:0; z-index:10; box-shadow:0 5px 12px rgba(31,53,40,.045); }
+.preview-panel .preview-area { border-radius:0 0 17px 17px; }
+.preview-panel .result-head { border-radius:17px 17px 0 0; background:#fff; }
+.output-top { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:0 0 10px; }
+.output-count { color:#708579; font-size:12px; }
+.edit-hint { color:#98a69c; font-size:12px; }
+.button-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.action { border:1px solid #dce7dd; background:#fff; border-radius:9px; min-height:40px; color:#466552; font-size:12.5px; font-weight:750; padding:9px 8px; transition:background .12s; }
+.action:hover { background:#f5faf6; }
+.action:disabled { opacity:.42; cursor:not-allowed; }
+.action.featured { color:#fff; border-color:#267b62; background:#287e64; }
+.action.featured:hover { background:#1b694f; }
+.action.secondary { background:#f5f8f5; }
+.compat-note { background:#f8faf8; border:1px solid #e9eee9; padding:0; border-radius:10px; font-size:11.6px; line-height:1.65; margin-top:9px; color:#7a8b7e; }
+.compat-note summary { display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; list-style:none; padding:9px 12px; }
+.compat-note summary::-webkit-details-marker { display:none; }
+.compat-summary-label { display:inline-flex; flex-wrap:wrap; align-items:center; gap:7px; min-width:0; }
+.compat-note strong { color:#506e59; white-space:nowrap; }
+.compat-icon { color:#789c82; font-weight:bold; }
+.compat-quick { color:#809286; }
+.compat-expand { color:#68836f; font-weight:650; white-space:nowrap; }
+.compat-chevron { display:inline-block; transition:transform .15s; }
+.compat-note[open] .compat-chevron { transform:rotate(180deg); }
+.compat-detail { border-top:1px solid #e7eee8; padding:10px 13px 12px; line-height:1.9; }
+.toast { position:fixed; bottom:24px; left:50%; transform:translate(-50%,25px); background:#213c2e; color:#fff; padding:12px 22px; border-radius:10px; font-weight:650; font-size:13px; box-shadow:0 15px 34px #142e2645; opacity:0; pointer-events:none; transition:opacity .15s,transform .15s; z-index:40; white-space:nowrap; }
+.toast.show { opacity:1; transform:translate(-50%,0); }
+.app-footer { text-align:center; color:#9ba79e; font-size:12px; padding-top:30px; line-height:1.8; }
+.visually-hidden { position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important; }
+@media(max-width:1110px) { .header-inner,.shell { padding-left:22px; padding-right:22px; } .workspace { grid-template-columns:minmax(310px,.94fr) minmax(380px,1.06fr); gap:14px; } .paper { padding:37px 32px; } .preview-area { padding:22px 18px; } .panel-head { padding-left:18px; padding-right:18px; } .panel-body,.output-tools { padding-left:18px; padding-right:18px; } .source-input { min-height:400px; } }
+@media(max-width:790px) { .workspace { display:flex; flex-direction:column; } .panel { width:100%; } .flow-note { display:none; } .hero { padding-bottom:22px; } .source-input { min-height:310px; } .preview-area { min-height:400px; } .output-tools { position:static; box-shadow:none; } .paper { min-height:370px; } .empty { min-height:280px; } }
+@media(max-width:470px) { .header-inner { padding:16px; } .shell { padding:23px 12px 44px; } .privacy { padding:7px 9px; font-size:10px; } .brand-name { font-size:19px; } .brand-mark { height:36px; width:36px; } h1 { font-size:25px; } .hero p { font-size:12.5px; } .panel-head { padding-top:18px; } .panel-title { font-size:16px; } .panel-help { font-size:11px; } .preview-area { padding:16px 10px; } .paper { padding:28px 23px; } .preview-area.phone .paper { max-width:350px; padding:28px 18px; } .article { font-size:16px; } .button-grid { grid-template-columns:1fr 1fr; } .action.featured { grid-column:span 2; } .edit-hint { display:none; } .compat-quick { display:none; } .compat-note summary { padding:10px; } }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="header-inner">
+ <div class="brand"><div class="brand-mark" aria-hidden="true">文</div><div><div class="brand-name">문단결</div><div class="brand-tag">읽고 싶은 글로 만드는 블로그 자동편집기</div></div></div>
+ <div class="privacy"><span class="privacy-dot"></span> 내 브라우저에서만 처리</div>
+</div></header>
+<main class="shell">
+ <div class="hero"><div><div class="eyebrow">Blog Formatting Studio</div><h1>글은 그대로, 읽기는 더 편하게.</h1><p>전체 글을 붙여넣으세요. 문단과 소제목을 정돈하고 모바일에서 읽기 좋은 형태로 만들어 드립니다.</p></div><div class="flow-note"><strong>01 원문 붙여넣기</strong><span class="flow-arrow">→</span><strong>02 자동 편집</strong><span class="flow-arrow">→</span><strong>03 복사</strong></div></div>
+ <div class="workspace">
+  <section class="panel" aria-label="원문 입력"><div class="panel-head"><div><span class="panel-number">01</span><span class="panel-title">원문 입력</span></div><div class="panel-help">텍스트 · 마크다운 지원</div></div><div class="panel-body">
+   <label class="field-heading" for="customTitle">게시글 제목 <span class="field-sub">선택 · 첫 줄에서 자동 감지</span></label>
+   <input id="customTitle" class="text-input" placeholder="제목이 있다면 입력하세요" maxlength="150" autocomplete="off">
+   <div class="field-heading" style="margin-top:20px"><label for="sourceText">글 전체 붙여넣기</label><span class="field-sub">Ctrl + Enter로 편집</span></div>
+   <textarea id="sourceText" class="source-input" spellcheck="false" placeholder="여기에 글 전체를 붙여넣으세요.\n\n예)\n왜 우리는 글을 끝까지 읽지 못할까요?\n\n같은 내용이어도 문단의 길이와 줄 간격에 따라 읽는 경험은 달라집니다. 한 번에 너무 많은 내용을 담으면 독자는 다음 문장으로 넘어가기 어렵습니다.\n\n## 짧은 문단의 힘\n\n문장을 고치지 않아도 적절한 위치에서 문단을 나누면 글의 흐름을 따라가기 쉬워집니다."></textarea>
+   <div class="input-foot"><span id="inputCount" class="muted">0자 입력됨</span><div class="inline-actions"><button type="button" id="sampleBtn" class="link-button">예시 넣기</button><button type="button" id="fileBtn" class="link-button">파일 열기</button><button type="button" id="clearBtn" class="link-button">비우기</button></div></div>
+   <input type="file" id="fileInput" class="visually-hidden" accept=".txt,.md,text/plain,text/markdown">
+   <hr class="divider">
+   <div class="settings-title">편집 설정</div>
+   <div class="controls"><label><span class="control-name">글 스타일</span><select id="styleSelect" class="control"><option value="column">차분한 칼럼</option><option value="warm">따뜻한 에세이</option><option value="info">선명한 정보글</option></select></label>
+   <label><span class="control-name">문단 길이</span><select id="lengthSelect" class="control"><option value="short">짧게 · 모바일 중심</option><option value="normal" selected>보통 · 추천</option><option value="long">길게 · 원문 중심</option></select></label></div>
+   <div class="checks"><label class="check"><input type="checkbox" id="emphasisCheck" checked> 핵심 문장 강조</label><label class="check"><input type="checkbox" id="preserveCheck" checked> 원래 문단 구분 유지</label><label class="check"><input type="checkbox" id="titleCheck" checked> 첫 줄 제목 감지</label></div>
+   <p class="small-note">원문의 띄어쓰기와 직접 넣은 줄바꿈을 보존합니다. 문단 사이에는 빈 줄을 넣어 네이버에서 읽기 좋게 복사합니다.</p>
+   <button type="button" id="formatBtn" class="primary">글 자동 편집하기 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </div></section>
+  <section class="panel preview-panel" aria-label="완성본 미리보기"><div class="panel-head result-head"><div><span class="panel-number">02</span><span class="panel-title">완성본 미리보기</span></div><div class="preview-tools"><div class="toggle" aria-label="화면 미리보기"><button id="pcBtn" type="button" aria-pressed="true">PC</button><button id="mobileBtn" type="button" aria-pressed="false">모바일</button></div></div></div>
+   <div class="output-tools"><div class="output-top"><span id="resultCount" class="output-count" aria-live="polite">편집 전 · 결과를 생성해 주세요</span><span class="edit-hint">미리보기 글을 직접 수정할 수 있어요</span></div>
+   <div class="button-grid"><button type="button" id="copyRichBtn" class="action featured" disabled>네이버 서식 복사</button><button type="button" id="copyPlainBtn" class="action" disabled>텍스트만 복사</button><button type="button" id="copyTitleBtn" class="action" disabled>제목 복사</button><button type="button" id="downloadHtmlBtn" class="action secondary" disabled>HTML 파일 저장</button><button type="button" id="downloadTextBtn" class="action secondary" disabled>TXT 파일 저장</button><button type="button" id="selectAllBtn" class="action secondary" disabled>완성본 전체 선택</button></div>
+   <details class="compat-note">
+    <summary><span class="compat-summary-label"><span class="compat-icon">ⓘ</span><strong>네이버 붙여넣기</strong><span class="compat-quick">서식 복사 → 블로그 본문에서 Ctrl+V</span></span><span class="compat-expand">자세히 보기 <span class="compat-chevron">⌄</span></span></summary>
+    <div class="compat-detail">① <b>네이버 서식 복사</b> 클릭 → ② 네이버 블로그 본문 클릭 → ③ <b>Ctrl+V</b> (Ctrl+Shift+V는 사용하지 마세요). 굵기·글자 크기·강조색과 함께 <b>문단 사이 빈 줄과 직접 넣은 줄바꿈</b>도 복사합니다. 다만 네이버가 외부 서식을 일부 바꿀 수 있으니 발행 전에 확인해 주세요. ‘텍스트만 복사’는 모든 서식을 빼고 붙여넣는 기능입니다.</div>
+   </details>
+   </div>
+   <div id="previewArea" class="preview-area"><div id="paper" class="paper" data-style="column"><div id="empty" class="empty"><div class="empty-mark" aria-hidden="true">✦</div><h3>완성된 글이 여기에 나타납니다</h3><p>왼쪽에 글을 붙여넣고<br><b>글 자동 편집하기</b>를 눌러보세요.</p></div><h2 id="previewTitle" class="post-title" hidden></h2><div id="postContent" class="article" contenteditable="true" spellcheck="true" aria-label="편집된 본문을 직접 수정할 수 있습니다" hidden></div></div></div>
+
+  </section>
+ </div>
+ <footer class="app-footer">회원가입·서버 전송·API 키 없이 사용합니다. 입력 내용은 이 화면에서만 처리되며 자동 저장되지 않습니다.<br>이 도구는 문장 재작성, 사실 검증, 자동 발행은 수행하지 않습니다.</footer>
+</main>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const source=$('sourceText'), title=$('customTitle'), body=$('postContent'), previewTitle=$('previewTitle'), paper=$('paper'), area=$('previewArea');
+let formatted=false, explicitTitle=false, derivedTitle='', toastTimer=null, lastAnalysis=null;
+const styles={
+ column:{font:"-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif", text:'#35423b',head:'#176b54',strong:'#244835',quoteBg:'#f3f8f4',quote:'#44614c',quoteBorder:'#7bae93',rule:'#dae6dd',ref:'#69796b'},
+ warm:{font:"'Iowan Old Style','Apple SD Gothic Neo','Noto Serif KR','Nanum Myeongjo','Batang',serif",text:'#51483c',head:'#986342',strong:'#855438',quoteBg:'#faf6ee',quote:'#786048',quoteBorder:'#c8aa82',rule:'#e6d7c6',ref:'#786c5d'},
+ info:{font:"-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif",text:'#35423b',head:'#2c628c',strong:'#205c87',quoteBg:'#f0f6fb',quote:'#3d5f7a',quoteBorder:'#8bb2d0',rule:'#d7e4ed',ref:'#69796b'}
+};
+const example=`줄바꿈 하나가 글의 인상을 바꿉니다
+
+사람들은 좋은 글을 만나면 끝까지 읽고 싶어 합니다. 하지만 내용이 아무리 좋아도 한 문단에 너무 많은 이야기가 들어가면 읽는 속도가 느려집니다. 스마트폰 화면에서 일곱 줄 이상 이어지는 문단은 어디까지 읽었는지 놓치기 쉽습니다. 그래서 글을 더 쉽게 읽히게 만드는 첫 번째 방법은 문장을 새로 쓰는 것이 아니라 문단의 숨을 고르는 것입니다.
+
+## 눈에 보이는 글의 리듬
+
+짧은 문단은 독자에게 잠깐 멈출 자리를 만들어 줍니다. 반면 모든 문장을 한 줄씩 나누면 글의 연결이 흐트러질 수도 있습니다. **중요한 것은 문단의 길이 자체보다 생각이 자연스럽게 이어지는가입니다.** 한 가지 생각을 두세 문장으로 설명한 뒤 다음 문단으로 넘어가면 흐름을 따라가기 편해집니다.
+
+> 글은 빠르게 훑을 수 있어야 하지만, 생각은 천천히 남아야 합니다.
+
+## 무엇을 강조할까요?
+
+우리가 모든 문장을 굵게 표시하면 결국 어느 문장도 두드러지지 않습니다. 핵심은 독자가 기억해야 할 문장에만 시선을 모으는 것입니다. 예를 들어 중요한 결론이나 놓치기 쉬운 차이는 굵게 표시하고, 나머지는 편안한 본문으로 남겨 두는 것이 좋습니다.
+
+- 문단은 하나의 생각을 중심으로 나눕니다.
+- 소제목은 내용이 바뀌는 곳에 놓습니다.
+- 인용문은 원문과 구별하되 너무 많이 사용하지 않습니다.
+
+정리하면, 좋은 편집은 글을 요란하게 꾸미는 기술이 아닙니다. 독자가 내용을 이해하는 데 방해가 되는 요소를 줄이는 일입니다. 읽기에 편한 여백과 적절한 강조만으로도 글의 인상은 상당히 달라집니다.`;
+const hasSentenceEnding=s=>/[.!?。！？…][\u201d\u2019"')\]]?$/.test(s);
+const normalize=t=>t.replace(/\r\n?/g,'\n').replace(/\u00a0/g,' ').replace(/[\u200b\ufeff]/g,'').replace(/[\t ]+$/gm,'').trim();
+const compact=t=>t.replace(/\s*\n\s*/g,' ').trim();
+function headInfo(line){
+ let text=line.trim();
+ const match=text.match(/^(#{1,3})\s+(.+)$/);
+ if(match) return {level:match[1].length,text:match[2].trim(),explicit:true};
+ if(/^\*\*(.{2,65})\*\*$/.test(text)) return {level:2,text:text.slice(2,-2),explicit:true};
+ return null;
+}
+function isBibliographyHeading(s){return /^(참고\s*(?:자료|문헌|논문|출처)|출처|자료\s*출처|레퍼런스|reference[s]?)\s*[:：]?$/.test(s.trim().toLowerCase());}
+function isRefsHeading(s){return isBibliographyHeading(s)||/^(fact\s*check|팩트\s*체크|사실\s*확인|검증\s*메모)\s*[:：]?$/.test(s.trim().toLowerCase());}
+function isDivider(s){return /^\s*(?:-{3,}|\*{3,}|_{3,})\s*$/.test(s);}
+function bulletInfo(s){const b=s.match(/^\s*[-*•·]\s+(.+)$/);if(b) return {type:'ul',text:b[1]};const n=s.match(/^\s*(\d{1,2})[.)]\s+(.+)$/);if(n) return {type:'ol',text:n[2],start:Number(n[1])};return null;}
+function maybeHeading(lines,i){
+ const s=lines[i].trim();
+ if(/^\d{1,2}[.)]\s+.{2,36}$/.test(s) && (i===0||!lines[i-1].trim()) && lines[i+1]!==undefined && !lines[i+1].trim() && lines.slice(i+2).some(x=>x.trim()))return true;
+ if(!s||s.length>38||hasSentenceEnding(s)||/^https?:\/\//.test(s)||isDivider(s)||bulletInfo(s)) return false;
+ if(headInfo(s)) return true;
+ if(isRefsHeading(s))return true;
+ const prev=lines[i-1]===undefined?'':lines[i-1].trim();
+ const next=lines[i+1]===undefined?'':lines[i+1].trim();
+ if(prev===''&&next===''&&lines.slice(i+2).some(x=>x.trim())) return true;
+ if(/^(?:첫째|둘째|셋째|마지막으로|서론|본론|결론|맺음말|들어가며|나가며)[,:：]?\s*/.test(s)&&next==='')return true;
+ return false;
+}
+function splitSentences(t){
+ const s=t.trim(); if(!s)return [];
+ const out=[]; let start=0;
+ for(let i=0;i<s.length;i++){
+  if(!/[.!?。！？…]/.test(s[i]))continue;
+  let e=i+1;
+  while(e<s.length && /[.!?。！？…]/.test(s[e]))e++;
+  while(e<s.length && /["'”’）)\]]/.test(s[e]))e++;
+  if(e<s.length && !/\s/.test(s[e])){i=e-1;continue;}
+  const tail=s.slice(start,e);
+  if(/(?:\b(?:Dr|Mr|Ms|Mrs|vs|etc|e\.g|i\.e|U\.S|No)\.)$/i.test(tail)&&e<s.length){i=e-1;continue;}
+  out.push(tail);
+  // Do not skip whitespace: the next segment retains spaces that the author typed.
+  start=e;i=e-1;
+ }
+ if(start<s.length)out.push(s.slice(start));
+ return out.filter(part=>part.trim());
+}
+function splitLongPart(s,max){
+ if(s.length<max*1.8) return [s];
+ let remaining=s; const parts=[];
+ while(remaining.length>max*1.8){
+  const min=Math.floor(max*.70), limit=Math.min(remaining.length-1,Math.floor(max*1.3));
+  const candidates=[]; for(let j=min;j<=limit;j++)if(remaining[j]===' ' && /[,;:，；：]/.test(remaining[j-1]||''))candidates.push(j);
+  let idx=candidates.length?candidates.reduce((a,b)=>Math.abs(a-max)<Math.abs(b-max)?a:b):remaining.lastIndexOf(' ',max);
+  if(idx<min)idx=remaining.indexOf(' ',max);
+  if(idx<min||idx>limit)break;
+  parts.push(remaining.slice(0,idx).trim()); remaining=remaining.slice(idx).trim();
+ }
+ if(remaining)parts.push(remaining);
+ return parts;
+}
+function paragraphize(text,mode){
+ const conf={short:{target:105,max:2},normal:{target:170,max:3},long:{target:250,max:4}}[mode]||{target:170,max:3};
+ const res=[];let buf='',count=0;
+ const flush=()=>{if(buf.trim())res.push(buf.trim());buf='';count=0;};
+ for(const rawLine of text.split('\n')){
+  if(!rawLine.trim()){flush();continue;}
+  const parts=splitSentences(rawLine).flatMap(piece=>splitLongPart(piece,conf.target));
+  let isFirstOnLine=true;
+  for(const part of parts){
+   const prefix=(buf&&isFirstOnLine)?'\n':'';
+   const next=buf+prefix+part;
+   if(buf && (next.length>conf.target||count>=conf.max))flush();
+   buf=buf?buf+prefix+part:part.trimStart();
+   count++;isFirstOnLine=false;
+  }
+ }
+ flush();return res;
+}
+function detectTitleLine(lines){
+ let idx=lines.findIndex(s=>s.trim());if(idx<0)return null;
+ const first=lines[idx].trim();const heading=headInfo(first);
+ if(heading&&heading.level===1) return {index:idx,text:heading.text};
+ if(heading&&heading.level>1)return null;
+ const next=lines[idx+1]===undefined?'':lines[idx+1].trim();
+ const remaining=lines.slice(idx+1).filter(s=>s.trim());
+ if(first.length>=4&&first.length<=58&&remaining.length>0&&next===''&&(!hasSentenceEnding(first)||/[?!！？][\u201d\u2019"']?$/.test(first))&&!isRefsHeading(first)&&!bulletInfo(first)&&!/^\s*[>\-*]/.test(first)&&!/^https?:\/\//.test(first))return {index:idx,text:first};
+ return null;
+}
+function parseArticle(raw,opts){
+ const lines=normalize(raw).split('\n');const result=[];
+ const found=opts.detectTitle?detectTitleLine(lines):null;
+ let inRefs=false;
+ for(let i=0;i<lines.length;){
+  const s=lines[i].trim(); if(!s){i++;continue;}
+  if(found&&i===found.index){i++;continue;}
+  if(isDivider(s)){result.push({type:'hr'});i++;continue;}
+  const h=headInfo(s);
+  if(h || isRefsHeading(s) || maybeHeading(lines,i)){
+   let text=h?h.text:s;
+   inRefs=isBibliographyHeading(text);
+   result.push({type:h&&h.level===3?'h3':'h2',text}); i++; continue;
+  }
+  if(/^>\s?/.test(s)){
+   let linesOut=[];
+   while(i<lines.length&&/^\s*>\s?/.test(lines[i])){linesOut.push(lines[i].trim().replace(/^>\s?/,''));i++;}
+   result.push({type:'blockquote',text:compact(linesOut.join(' '))});continue;
+  }
+  if(inRefs){result.push({type:'ref',text:s});i++;continue;}
+  const bullet=bulletInfo(s);
+  if(bullet){let arr=[],type=bullet.type,start=bullet.start||1;
+   while(i<lines.length){const b=bulletInfo(lines[i].trim());if(!b||b.type!==type)break;arr.push(b.text);i++;}
+   result.push({type,list:arr,start});continue;
+  }
+  let gathered=[];
+  while(i<lines.length){const cur=lines[i].trim();
+   if(!cur){i++;if(opts.preserve)break; if(gathered.length){continue;}else continue;}
+   if(found&&i===found.index){i++;continue;}
+   if(gathered.length && (headInfo(cur)||isRefsHeading(cur)||isDivider(cur)||bulletInfo(cur)||/^>\s?/.test(cur)||maybeHeading(lines,i)))break;
+   gathered.push(lines[i].replace(/[ \t]+$/,''));i++;
+   if(opts.preserve && lines[i]!==undefined&&!lines[i].trim())break;
+  }
+  let paragraph=gathered.join('\n').trim();
+  if(!paragraph)continue;
+  if(inRefs){result.push({type:'ref',text:paragraph});continue;}
+  if(paragraph.length>2 && /^“[\s\S]+”$/.test(paragraph)&&paragraph.length<260){result.push({type:'blockquote',text:paragraph});continue;}
+  for(const p of paragraphize(paragraph,opts.length))result.push({type:'p',text:p});
+ }
+ return {title:found?found.text:'',blocks:result};
+}
+const emphasisCue=/(?:^|[.!?]\s*)(?:핵심은|중요한 것은|무엇보다|정리하면|결국|따라서|기억해야 할 것은|주목할 점은|놓치지 말아야 할 것은|다시 말해|가장 중요한 점은|여기서 중요한 것은|문제는|이를 통해 알 수 있는 것은)[^.!?。！？]{12,125}[.!?。！？]?/;
+function findEmphasis(s){
+ const match=s.match(emphasisCue);if(!match)return null;
+ const full=match[0].replace(/^[.!?]\s*/,'').trim();
+ if(full.length>130||full.length<14)return null;
+ const start=s.indexOf(full);if(start<0)return null;
+ return {start,end:start+full.length};
+}
+function makeNode(tag,css){const e=document.createElement(tag);if(css)e.style.cssText=css;return e;}
+function addInlineChunk(parent,str){
+ const re=/\*\*([^*]+)\*\*|\*([^*\n]+)\*|`([^`]+)`|\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s<>"'()]+)/g;
+ let prev=0,m;
+ while((m=re.exec(str))!==null){
+  if(m.index>prev)parent.appendChild(document.createTextNode(str.slice(prev,m.index)));
+  let n;
+  if(m[1]!==undefined){n=document.createElement('strong');n.textContent=m[1];}
+  else if(m[2]!==undefined){n=document.createElement('em');n.textContent=m[2];}
+  else if(m[3]!==undefined){n=document.createElement('code');n.textContent=m[3];}
+  else if(m[4]!==undefined){n=document.createElement('a');n.textContent=m[4];n.href=m[5];n.target='_blank';n.rel='noopener noreferrer';}
+  else {let url=m[6];const trailing=url.match(/[.,;:!?。！？]+$/);let suffix='';if(trailing){suffix=trailing[0];url=url.slice(0,-suffix.length);}n=document.createElement('a');n.href=url;n.textContent=url;n.target='_blank';n.rel='noopener noreferrer';if(suffix)n.dataset.suffix=suffix;}
+  parent.appendChild(n);
+  if(n.dataset.suffix){parent.appendChild(document.createTextNode(n.dataset.suffix));delete n.dataset.suffix;}
+  prev=re.lastIndex;
+ }
+ if(prev<str.length)parent.appendChild(document.createTextNode(str.slice(prev)));
+}
+function addInline(parent,str){
+ // Keep every explicit Enter as a real <br>, not just CSS that an editor may discard.
+ const segments=str.split('\n');
+ for(let i=0;i<segments.length;i++){
+  if(i)parent.appendChild(document.createElement('br'));
+  addInlineChunk(parent,segments[i]);
+ }
+}
+function insertTextNode(container,text,highlight){
+ if(highlight){addInline(container,text.slice(0,highlight.start));const strong=document.createElement('strong');strong.className='auto-emphasis';addInline(strong,text.slice(highlight.start,highlight.end));container.appendChild(strong);addInline(container,text.slice(highlight.end));}
+ else addInline(container,text);
+}
+function renderBlocks(blocks,emphasis){
+ body.replaceChildren(); let pcount=0,hcount=0,marked=0,refCount=0;
+ const eligible=blocks.filter(x=>x.type==='p').length;
+ const maxHighlight=emphasis?Math.max(1,Math.ceil(eligible/4)):0;
+ for(const b of blocks){
+  let el;
+  switch(b.type){
+   case 'h2':case 'h3':el=document.createElement(b.type);addInline(el,b.text);hcount++;body.appendChild(el);break;
+   case 'p':el=document.createElement('p');const hi=marked<maxHighlight?findEmphasis(b.text):null;insertTextNode(el,b.text,hi);if(hi)marked++;pcount++;body.appendChild(el);break;
+   case 'blockquote':el=document.createElement('blockquote');addInline(el,b.text);body.appendChild(el);break;
+   case 'ref':el=document.createElement('p');el.className='ref';addInline(el,b.text);body.appendChild(el);refCount++;break;
+   case 'ol':case 'ul':el=document.createElement(b.type);if(b.type==='ol'&&b.start!==1)el.start=b.start;for(const item of b.list){const li=document.createElement('li');addInline(li,item);el.appendChild(li);}body.appendChild(el);break;
+   case 'hr':el=document.createElement('hr');body.appendChild(el);break;
+  }
+ }
+ lastAnalysis={paragraphs:pcount,heads:hcount,highlights:marked,refs:refCount};
+ updateStats();
+}
+function displayTitle(){const s=title.value.trim();derivedTitle=s;previewTitle.textContent=s;previewTitle.hidden=!s;}
+function updateStats(){if(!formatted)return;const paras=body.querySelectorAll('p:not(.ref)').length;const heads=body.querySelectorAll('h2,h3').length;const bolds=body.querySelectorAll('strong.auto-emphasis').length;const chars=body.textContent.trim().length;$('resultCount').textContent=`본문 ${paras}문단 · 소제목 ${heads}개 · 자동 강조 ${bolds}곳 · ${chars.toLocaleString('ko-KR')}자`;}
+function currentOpts(){return {detectTitle:$('titleCheck').checked,preserve:$('preserveCheck').checked,length:$('lengthSelect').value};}
+function formatArticle(){
+ const raw=source.value;
+ if(!raw.trim()){notify('먼저 글 전체를 붙여넣어 주세요.');source.focus();return;}
+ const parsed=parseArticle(raw,currentOpts());
+ if(!explicitTitle)title.value=parsed.title;
+ displayTitle();
+ renderBlocks(parsed.blocks,$('emphasisCheck').checked);
+ formatted=true;
+ $('empty').hidden=true; previewTitle.hidden=!title.value.trim();body.hidden=false;
+ for(const el of document.querySelectorAll('.action'))el.disabled=false;
+ if(!title.value.trim())$('copyTitleBtn').disabled=true;
+ updateStats();notify('글 편집이 완료되었습니다. 미리보기에서 바로 수정할 수 있어요.');
+ if(window.matchMedia('(max-width:790px)').matches){document.querySelector('.result-head').scrollIntoView({behavior:'smooth',block:'start'});}
+}
+function countInput(){const s=source.value;$('inputCount').textContent=`${s.length.toLocaleString('ko-KR')}자 입력됨 · 공백 제외 ${s.replace(/\s/g,'').length.toLocaleString('ko-KR')}자`;}
+function notify(message){const t=$('toast');t.textContent=message;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);}
+function setMode(which){const phone=which==='mobile';area.classList.toggle('phone',phone);$('pcBtn').setAttribute('aria-pressed',String(!phone));$('mobileBtn').setAttribute('aria-pressed',String(phone));}
+function plainText(){
+ let out=[];
+ for(const el of body.children){const tag=el.tagName.toLowerCase();
+  if(tag==='hr'){out.push('────────────');continue;}
+  if(tag==='ul'||tag==='ol'){
+    let number=el.start||1;
+    for(const li of el.querySelectorAll(':scope > li')){out.push((tag==='ul'?'• ':`${number++}. `)+li.innerText.trim());}
+    out.push('');continue;
+  }
+  const txt=el.innerText.trim();if(!txt)continue;
+  out.push(txt);out.push('');
+ }
+ return out.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+function clean(node){
+ if(node.nodeType===Node.TEXT_NODE)return document.createTextNode(node.nodeValue);
+ if(node.nodeType!==Node.ELEMENT_NODE)return document.createTextNode('');
+ const tag=node.tagName.toLowerCase();
+ if(['script','style','iframe','form','button','input','img','svg','noscript'].includes(tag))return document.createTextNode('');
+ const allowed=['p','h2','h3','strong','b','em','i','a','blockquote','ul','ol','li','hr','br','code','span'];
+ const el=document.createElement(allowed.includes(tag)?tag:(tag==='div'?'p':'span'));
+ if(tag==='a'&&/^https?:\/\//i.test(node.getAttribute('href')||'')){el.href=node.getAttribute('href');el.target='_blank';el.rel='noopener noreferrer';}
+ if(tag==='ol'&&Number(node.getAttribute('start'))>1)el.start=Number(node.getAttribute('start'));
+ for(const child of node.childNodes)el.appendChild(clean(child));
+ return el;
+}
+function renderInlineHtml(){
+ const theme=styles[$('styleSelect').value]||styles.column;
+ const wrapper=document.createElement('div');wrapper.style.cssText=`max-width:760px;margin:0 auto;color:${theme.text};font-family:${theme.font};font-size:17px;line-height:1.95;letter-spacing:-.02em;word-break:keep-all;overflow-wrap:anywhere;white-space:pre-wrap;`;
+ for(const child of body.childNodes){const c=clean(child);wrapper.appendChild(c);}
+ const rule=`font-family:${theme.font};line-height:1.9;letter-spacing:-.02em;`;
+ for(const el of wrapper.querySelectorAll('*')){
+  const t=el.tagName.toLowerCase();
+  const stylesByTag={
+   p:`margin:0 0 22px;font-size:17px;color:${theme.text};${rule}`,
+   h2:`font-size:23px;line-height:1.5;color:${theme.head};font-weight:800;margin:38px 0 16px;${rule}${$('styleSelect').value==='info'?'border-left:4px solid #3078aa;padding-left:13px;':''}`,
+   h3:`font-size:19px;font-weight:750;margin:30px 0 13px;color:${theme.head};${rule}`,
+   strong:`font-weight:800;color:${theme.strong};`,b:`font-weight:800;color:${theme.strong};`,em:'font-style:italic;',i:'font-style:italic;',
+   blockquote:`margin:24px 0 27px;border-left:3px solid ${theme.quoteBorder};background:${theme.quoteBg};padding:16px 20px;color:${theme.quote};font-size:16px;line-height:1.9;`,
+   ul:`margin:0 0 24px;padding-left:25px;line-height:1.9;`,ol:`margin:0 0 24px;padding-left:25px;line-height:1.9;`,li:'margin-bottom:8px;',
+   a:`color:${theme.head};text-decoration:underline;`,hr:`border:0;border-top:1px solid ${theme.rule};margin:34px 0;`,
+   code:`font-family:monospace;font-size:14px;background:#f1f3f1;padding:2px 4px;border-radius:3px;`
+  };
+  if(stylesByTag[t])el.style.cssText=stylesByTag[t];
+ }
+ // Naver-compatible simple inline formatting; source attribution sections stay readable.
+ const refs=body.querySelectorAll('p.ref');
+ if(refs.length){const clones=wrapper.querySelectorAll('p');let refTexts=new Set([...refs].map(n=>n.textContent.trim()));for(const p of clones){if(refTexts.has(p.textContent.trim()))p.style.cssText+=`font-size:14px;color:${theme.ref};line-height:1.75;`;}}
+ return wrapper;
+}
+async function copyValue(text){
+ if(navigator.clipboard&&window.isSecureContext){try{await navigator.clipboard.writeText(text);return true;}catch(e){}}
+ const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:-9999px;left:-9999px;';document.body.appendChild(ta);ta.select();let good=false;try{good=document.execCommand('copy');}catch(e){}ta.remove();return good;
+}
+async function copyPlain(){if(!formatted)return;const good=await copyValue(plainText());notify(good?'서식 없는 텍스트를 복사했습니다.':'텍스트 복사가 제한되었습니다. 본문 전체 선택을 이용해 주세요.');}
+async function copyTitle(){const t=title.value.trim();if(!t)return notify('게시글 제목이 없습니다.');const ok=await copyValue(t);notify(ok?'제목을 복사했습니다.':'복사가 제한되어 제목을 직접 선택해 주세요.');}
+/** 본문 복사: 리치 HTML과 일반 텍스트를 함께 전달합니다. */
+function makeNaverHTML(){
+ const root=renderInlineHtml();
+ // 편집기가 제목 태그를 다른 태그로 바꾸더라도 크기·색·굵기가 남도록 인라인 span을 추가합니다.
+ for(const heading of root.querySelectorAll('h2,h3')){
+  const span=document.createElement('span');
+  const cs=heading.style;
+  span.style.cssText=`font-size:${cs.fontSize||'21px'};font-weight:800;color:${cs.color||'#176b54'};line-height:1.5;`;
+  while(heading.firstChild)span.appendChild(heading.firstChild);
+  heading.appendChild(span);
+ }
+ // 강조 태그와 그 안의 글자 모두 명시적으로 굵게 지정합니다.
+ for(const bold of root.querySelectorAll('strong,b')){
+  const span=document.createElement('span');
+  span.style.cssText=`font-weight:800;color:${bold.style.color||'#244835'};`;
+  while(bold.firstChild)span.appendChild(bold.firstChild);
+  bold.appendChild(span);
+ }
+ // Naver may strip CSS white-space, line-height, or margin. Preserve repeated spaces
+ // using non-breaking space characters, and paragraphs using actual line elements.
+ const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+ const textNodes=[];while(walker.nextNode())textNodes.push(walker.currentNode);
+ for(const node of textNodes){
+  let value=node.nodeValue;
+  value=value.replace(/ {2,}/g,match=>' '+ '\u00a0'.repeat(match.length-1));
+  if(node.previousSibling?.nodeType===Node.ELEMENT_NODE&&value.startsWith(' '))value='\u00a0'+value.slice(1);
+  if(node.nextSibling?.nodeType===Node.ELEMENT_NODE&&value.endsWith(' '))value=value.slice(0,-1)+'\u00a0';
+  node.nodeValue=value;
+ }
+ const children=[...root.children];
+ for(let i=0;i<children.length-1;i++){
+  const current=children[i];
+  current.style.marginBottom='0';
+  // A separate empty line survives even if the editor strips paragraph margins.
+  const spacer=document.createElement('p');
+  spacer.style.cssText='margin:0;padding:0;line-height:1.4;font-size:17px;';
+  spacer.appendChild(document.createTextNode('\u00a0'));
+  current.after(spacer);
+ }
+ return root.outerHTML;
+}
+function copySelectedHtml(html){
+ // Clipboard API를 사용할 수 없는 로컬 파일/브라우저에서는 실제 서식 있는 DOM을 선택해 복사합니다.
+ const holder=document.createElement('div');
+ holder.style.cssText='position:fixed;left:-12000px;top:0;width:720px;background:white;pointer-events:none;';
+ holder.innerHTML=html;
+ document.body.appendChild(holder);
+ const sel=window.getSelection();const prev=[];
+ for(let i=0;i<sel.rangeCount;i++)prev.push(sel.getRangeAt(i).cloneRange());
+ const range=document.createRange();range.selectNodeContents(holder);
+ let copied=false;
+ try{sel.removeAllRanges();sel.addRange(range);copied=document.execCommand('copy');}
+ catch(e){copied=false;}
+ finally{sel.removeAllRanges();holder.remove();for(const r of prev){try{sel.addRange(r);}catch(e){}}}
+ return copied;
+}
+async function copyRich(){
+ if(!formatted)return;
+ const html=makeNaverHTML(),txt=plainText();
+ if(window.isSecureContext&&navigator.clipboard?.write&&window.ClipboardItem){
+  try{
+   const item=new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([txt],{type:'text/plain'})});
+   await navigator.clipboard.write([item]);
+   notify('공백·줄바꿈·서식까지 복사했습니다. 네이버 본문에서 Ctrl+V 하세요.');
+   return;
+  }catch(e){/* 권한 거부나 브라우저 미지원: DOM 서식 복사 시도 */}
+ }
+ if(copySelectedHtml(html)){
+  notify('공백·줄바꿈·서식까지 복사했습니다. 네이버 본문에서 Ctrl+V 하세요.');
+ }else{
+  notify('서식 복사가 차단됐습니다. 크롬에서 클립보드 권한을 허용한 뒤 다시 시도해 주세요.');
+ }
+}
+function safeName(){let str=(title.value.trim()||'블로그_편집본').replace(/[\\/:*?"<>|\r\n\t]/g,'_').slice(0,44);return str||'블로그_편집본';}
+function downloadBlob(name,contents,mime){const b=new Blob([contents],{type:mime});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);}
+function downloadHTML(){if(!formatted)return;const root=renderInlineHtml();let t=title.value.trim();
+ if(t){const h=document.createElement('h1');h.textContent=t;h.style.cssText='font-size:30px;line-height:1.5;letter-spacing:-.04em;margin:0 0 32px;color:#253e2e;';root.prepend(h);}
+ const page='<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escapeHTML(t||'블로그 편집본')+'</title></head><body style="background:#ffffff;margin:0;padding:30px 18px;">'+root.outerHTML+'</body></html>';
+ downloadBlob(safeName()+'.html',page,'text/html;charset=utf-8');notify('HTML 파일을 저장했습니다.');}
+function escapeHTML(s){return s.replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function downloadTXT(){if(!formatted)return;downloadBlob(safeName()+'.txt',(title.value.trim()?title.value.trim()+'\n\n':'')+plainText(),'text/plain;charset=utf-8');notify('TXT 파일을 저장했습니다.');}
+function selectAll(){if(!formatted)return;const range=document.createRange();range.selectNodeContents(body);const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);body.focus({preventScroll:true});notify('본문을 전체 선택했습니다. Ctrl+C로 복사하세요.');}
+source.addEventListener('input',countInput);
+source.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();formatArticle();}});
+title.addEventListener('input',()=>{explicitTitle=!!title.value.trim();if(formatted){displayTitle();$('copyTitleBtn').disabled=!title.value.trim();}});
+body.addEventListener('input',()=>{updateStats();});
+$('styleSelect').addEventListener('change',e=>paper.dataset.style=e.target.value);
+$('pcBtn').addEventListener('click',()=>setMode('pc'));$('mobileBtn').addEventListener('click',()=>setMode('mobile'));
+$('formatBtn').addEventListener('click',formatArticle);
+$('copyPlainBtn').addEventListener('click',copyPlain);$('copyRichBtn').addEventListener('click',copyRich);$('copyTitleBtn').addEventListener('click',copyTitle);
+$('downloadHtmlBtn').addEventListener('click',downloadHTML);$('downloadTextBtn').addEventListener('click',downloadTXT);$('selectAllBtn').addEventListener('click',selectAll);
+$('sampleBtn').addEventListener('click',()=>{source.value=example;title.value='';explicitTitle=false;countInput();formatArticle();});
+$('clearBtn').addEventListener('click',()=>{source.value='';title.value='';explicitTitle=false;formatted=false;lastAnalysis=null;body.replaceChildren();body.hidden=true;previewTitle.hidden=true;$('empty').hidden=false;$('resultCount').textContent='편집 전 · 결과를 생성해 주세요';document.querySelectorAll('.action').forEach(x=>x.disabled=true);countInput();source.focus();notify('입력과 결과를 비웠습니다.');});
+$('fileBtn').addEventListener('click',()=>$('fileInput').click());
+$('fileInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>3*1024*1024){notify('3MB 이하 텍스트 파일만 열 수 있습니다.');return;}try{source.value=await file.text();title.value='';explicitTitle=false;countInput();notify('텍스트 파일을 불러왔습니다. 자동 편집을 눌러주세요.');}catch(err){notify('파일을 읽지 못했습니다.');}e.target.value='';});
+countInput();
+})();
+</script>
+</body>
+</html>
