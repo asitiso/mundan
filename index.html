@@ -79,7 +79,7 @@ h1 { font-size:clamp(24px,2.6vw,36px); line-height:1.3; margin:0; letter-spacing
 .article h2:first-child { margin-top:0; }
 .article h3 { font-size:19px; font-weight:750; margin:37px 0 16px; color:#315546; }
 .article strong { color:#244835; font-weight:800; }
-.article strong.auto-emphasis { color:#234c39; font-weight:800; background-color:#fff0c9; border-radius:3px; padding:1px 2px; -webkit-box-decoration-break:clone; box-decoration-break:clone; }
+.article strong.auto-emphasis { color:#234c39; font-weight:800; }
 .article em { font-style:italic; }
 .article blockquote { border-left:3px solid #7bae93; background:#f2f7f3; border-radius:0 12px 12px 0; padding:19px 21px; margin:29px 0 32px; color:#3d5b48; font-size:1em; line-height:1.88; }
 .article ul, .article ol { margin:0 0 27px; padding-left:25px; }
@@ -139,6 +139,25 @@ h1 { font-size:clamp(24px,2.6vw,36px); line-height:1.3; margin:0; letter-spacing
 .toast.show { opacity:1; transform:translate(-50%,0); }
 .app-footer { text-align:center; color:#9ba79e; font-size:12px; padding-top:30px; line-height:1.8; }
 .visually-hidden { position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important; }
+
+/* 데스크톱: 기존 복사·저장 기능을 페이지 우측 상단으로 이동합니다. */
+@media (min-width:791px) {
+ .flow-note { display:none; }
+ .hero { align-items:center; }
+ .hero .output-tools { flex:0 1 505px; width:min(505px,100%); margin-left:auto; padding:12px 14px; background:#fff; border:1px solid #dfe9e1; border-radius:14px; position:relative; top:auto; z-index:1; box-shadow:0 5px 18px rgba(31,53,40,.045); }
+ .hero .output-top { margin-bottom:7px; }
+ .hero .button-grid { grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) minmax(95px,.7fr); gap:7px; }
+ .hero .action { min-height:38px; padding:7px 7px; font-size:12px; white-space:nowrap; }
+ .hero .mobile-extra-toggle { display:block; background:#f5f9f6; }
+ .hero .button-grid:not(.show-extra) #copyTitleBtn,
+ .hero .button-grid:not(.show-extra) .action.secondary { display:none; }
+ .hero .compat-note { margin-top:7px; }
+ .hero .compat-note summary { padding:6px 9px; }
+}
+@media (min-width:791px) and (max-width:1060px) {
+ .hero { flex-wrap:wrap; align-items:start; }
+ .hero .output-tools { width:100%; flex:0 1 505px; }
+}
 @media(max-width:1110px) { .header-inner,.shell { padding-left:22px; padding-right:22px; } .workspace { grid-template-columns:minmax(310px,.94fr) minmax(380px,1.06fr); gap:14px; } .paper { padding:37px 32px; } .preview-area { padding:22px 18px; } .panel-head { padding-left:18px; padding-right:18px; } .panel-body,.output-tools { padding-left:18px; padding-right:18px; } .source-input { min-height:400px; } }
 @media(max-width:790px) {
  .workspace { display:flex; flex-direction:column; } .panel { width:100%; } .flow-note { display:none; } .hero { padding-bottom:22px; }
@@ -516,7 +535,7 @@ function renderInlineHtml(){
    code:`font-family:monospace;font-size:14px;background:#f1f3f1;padding:2px 4px;border-radius:3px;`
   };
   if(stylesByTag[t])el.style.cssText=stylesByTag[t];
-  if(t==='strong'&&el.classList.contains('auto-emphasis'))el.style.cssText+=`background-color:#fff0c9;font-weight:800;color:${theme.strong};`;
+  if(t==='strong'&&el.classList.contains('auto-emphasis'))el.style.cssText+=`font-weight:800;color:${theme.strong};`;
  }
  if(body.firstElementChild?.classList.contains('intro-paragraph') && wrapper.firstElementChild?.tagName==='P'){wrapper.firstElementChild.style.cssText+=`font-size:18.5px;color:${theme.strong};line-height:1.95;`; }
  // Naver-compatible simple inline formatting; source attribution sections stay readable.
@@ -549,7 +568,7 @@ function makeNaverHTML(){
  // 강조 태그와 그 안의 글자 모두 명시적으로 굵게 지정합니다.
  for(const bold of root.querySelectorAll('strong,b')){
   const span=document.createElement('span');
-  span.style.cssText=`font-weight:800;color:${bold.style.color||'#244835'};${bold.classList.contains('auto-emphasis')?'background-color:#fff0c9;':''}`;
+  span.style.cssText=`font-weight:800;color:${bold.style.color||'#244835'};`;
   while(bold.firstChild)span.appendChild(bold.firstChild);
   bold.appendChild(span);
  }
@@ -622,6 +641,19 @@ source.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)
 title.addEventListener('input',()=>{explicitTitle=!!title.value.trim();if(formatted){displayTitle();$('copyTitleBtn').disabled=!title.value.trim();}});
 body.addEventListener('input',()=>{updateStats();});
 $('styleSelect').addEventListener('change',e=>paper.dataset.style=e.target.value);
+
+// 큰 화면에서는 복사 버튼을 오른쪽 상단에, 작은 화면에서는 기존 미리보기 상단에 둡니다.
+const outputToolbar=document.querySelector('.output-tools');
+const topHero=document.querySelector('.hero');
+const previewHeader=document.querySelector('.result-head');
+const narrowScreen=window.matchMedia('(max-width:790px)');
+function placeOutputToolbar(){
+ if(narrowScreen.matches)previewHeader.after(outputToolbar);
+ else topHero.appendChild(outputToolbar);
+}
+placeOutputToolbar();
+if(narrowScreen.addEventListener)narrowScreen.addEventListener('change',placeOutputToolbar);
+else narrowScreen.addListener(placeOutputToolbar);
 $('moreActionsBtn').addEventListener('click',()=>{const grid=$('buttonGrid'),on=grid.classList.toggle('show-extra');$('moreActionsBtn').setAttribute('aria-expanded',String(on));$('moreActionsBtn').textContent=on?'다른 기능 접기 ▴':'다른 기능 보기 ▾';});
  $('pcBtn').addEventListener('click',()=>setMode('pc'));$('mobileBtn').addEventListener('click',()=>setMode('mobile'));
 $('formatBtn').addEventListener('click',formatArticle);
