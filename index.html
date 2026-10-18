@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f4f6f4">
-<title>문단결 — 블로그 자동편집기</title>
+<title>문단결 — 모바일 가독성 중심 블로그 자동편집기</title>
 <style>
 :root { --ink:#182521; --muted:#78837d; --line:#dce4de; --paper:#ffffff; --canvas:#f5f7f4; --accent:#237a62; --accent-light:#e8f3ec; --shadow:0 12px 40px rgba(22,43,35,.05); }
 * { box-sizing:border-box; }
@@ -69,19 +69,20 @@ h1 { font-size:clamp(24px,2.6vw,36px); line-height:1.3; margin:0; letter-spacing
 .preview-area { background:#f5f7f5; border-bottom:1px solid #edf0ed; padding:32px 28px 36px; min-height:585px; display:flex; align-items:stretch; justify-content:center; overflow:auto; transition:padding .2s; }
 .paper { background:white; width:100%; max-width:730px; min-height:510px; padding:52px 57px 65px; border:1px solid #edf0ed; box-shadow:0 7px 30px rgba(17,40,28,.055); border-radius:3px; transition:max-width .2s,padding .2s; }
 .preview-area.phone { background:#e8ece9; }
-.preview-area.phone .paper { max-width:392px; min-height:630px; padding:35px 25px 46px; border:6px solid #353c36; border-radius:30px; box-shadow:0 14px 36px rgba(21,37,27,.16); }
-.post-title { font-size:30px; font-weight:800; line-height:1.5; letter-spacing:-.07em; margin:0 0 36px; color:#1c3328; word-break:keep-all; overflow-wrap:anywhere; }
-.article { outline:none; word-break:keep-all; overflow-wrap:anywhere; color:#35423b; font-size:17px; line-height:2.02; letter-spacing:-.024em; min-height:170px; white-space:pre-wrap; }
+.preview-area.phone .paper { max-width:418px; min-height:580px; padding:36px 29px 48px; border:1px solid #dce7df; border-radius:16px; box-shadow:0 12px 36px rgba(21,37,27,.09); }
+.post-title { font-size:30px; font-weight:800; line-height:1.43; letter-spacing:-.052em; margin:0 0 32px; color:#1c3328; word-break:keep-all; overflow-wrap:anywhere; padding-bottom:24px; border-bottom:1px solid #dcebe1; }
+.article { outline:none; word-break:keep-all; overflow-wrap:anywhere; color:#303c35; font-size:17.5px; line-height:1.95; letter-spacing:-.012em; min-height:170px; white-space:pre-wrap; }
 .article:focus { outline:2px dashed #bdd3c4; outline-offset:8px; }
-.article p { margin:0 0 26px; }
-.article h2 { color:#176b54; font-size:23px; font-weight:800; line-height:1.48; margin:45px 0 18px; letter-spacing:-.065em; }
+.article p { margin:0 0 27px; }
+.article > p.intro-paragraph { font-size:18.5px; line-height:1.95; color:#243c30; margin-bottom:32px; }
+.article h2 { color:#176b54; font-size:22px; font-weight:800; line-height:1.5; margin:47px 0 20px; letter-spacing:-.04em; border-left:3px solid #46967b; padding-left:13px; }
 .article h2:first-child { margin-top:0; }
-.article h3 { font-size:19px; font-weight:750; margin:36px 0 15px; }
+.article h3 { font-size:19px; font-weight:750; margin:37px 0 16px; color:#315546; }
 .article strong { color:#244835; font-weight:800; }
 .article em { font-style:italic; }
-.article blockquote { border-left:3px solid #7bae93; background:#f3f8f4; border-radius:0 9px 9px 0; padding:18px 22px; margin:27px 0 30px; color:#44614c; font-size:.97em; }
+.article blockquote { border-left:3px solid #7bae93; background:#f2f7f3; border-radius:0 12px 12px 0; padding:19px 21px; margin:29px 0 32px; color:#3d5b48; font-size:1em; line-height:1.88; }
 .article ul, .article ol { margin:0 0 27px; padding-left:25px; }
-.article li { margin:0 0 9px; padding-left:3px; }
+.article li { margin:0 0 12px; padding-left:4px; line-height:1.82; }
 .article a { color:#216d59; text-decoration:underline; text-underline-offset:3px; overflow-wrap:anywhere; }
 .article hr { border:0; height:1px; background:#dae6dd; margin:40px 0; }
 .article .ref { font-size:.85em; color:#69796b; line-height:1.8; margin:0 0 12px; overflow-wrap:anywhere; }
@@ -89,6 +90,7 @@ h1 { font-size:clamp(24px,2.6vw,36px); line-height:1.3; margin:0; letter-spacing
 .paper[data-style="warm"] .post-title, .paper[data-style="warm"] .article { font-family:'Iowan Old Style','Apple SD Gothic Neo','Noto Serif KR','Nanum Myeongjo','Batang',serif; }
 .paper[data-style="warm"] .article { color:#51483c; }
 .paper[data-style="warm"] .article h2, .paper[data-style="warm"] .article a { color:#986342; }
+.paper[data-style="warm"] .article h2 { border-left-color:#c8aa82; }
 .paper[data-style="warm"] .article strong { color:#855438; }
 .paper[data-style="warm"] .article blockquote { border-left-color:#c8aa82; background:#faf6ee; color:#786048; }
 .paper[data-style="warm"] .article hr { background:#e6d7c6; }
@@ -96,11 +98,12 @@ h1 { font-size:clamp(24px,2.6vw,36px); line-height:1.3; margin:0; letter-spacing
 .paper[data-style="info"] .article strong { color:#205c87; }
 .paper[data-style="info"] .article blockquote { border-left-color:#8bb2d0; background:#f0f6fb; color:#3d5f7a; }
 .paper[data-style="info"] .article a { color:#2b7299; }
-.preview-area.phone .post-title { font-size:25px; line-height:1.48; margin-bottom:28px; }
-.preview-area.phone .article { font-size:16.2px; line-height:1.9; }
-.preview-area.phone .article h2 { font-size:21px; margin:34px 0 16px; }
+.preview-area.phone .post-title { font-size:26px; line-height:1.42; margin-bottom:28px; padding-bottom:20px; }
+.preview-area.phone .article { font-size:17.5px; line-height:1.94; letter-spacing:-.012em; }
+.preview-area.phone .article > p.intro-paragraph { font-size:18px; line-height:1.91; }
+.preview-area.phone .article h2 { font-size:21px; margin:40px 0 18px; }
 .preview-area.phone .article h3 { font-size:18px; }
-.preview-area.phone .article p { margin-bottom:22px; }
+.preview-area.phone .article p { margin-bottom:26px; }
 .empty { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; min-height:420px; user-select:none; color:#95a49b; }
 .empty-mark { display:grid; place-items:center; width:74px; height:74px; background:#f1f7f2; border-radius:24px; color:#8fae96; margin-bottom:26px; font-size:30px; }
 .empty h3 { color:#657d6d; margin:0 0 11px; font-size:17px; }
@@ -119,6 +122,7 @@ h1 { font-size:clamp(24px,2.6vw,36px); line-height:1.3; margin:0; letter-spacing
 .action.featured { color:#fff; border-color:#267b62; background:#287e64; }
 .action.featured:hover { background:#1b694f; }
 .action.secondary { background:#f5f8f5; }
+.mobile-extra-toggle { display:none; }
 .compat-note { background:#f8faf8; border:1px solid #e9eee9; padding:0; border-radius:10px; font-size:11.6px; line-height:1.65; margin-top:9px; color:#7a8b7e; }
 .compat-note summary { display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; list-style:none; padding:9px 12px; }
 .compat-note summary::-webkit-details-marker { display:none; }
@@ -135,8 +139,36 @@ h1 { font-size:clamp(24px,2.6vw,36px); line-height:1.3; margin:0; letter-spacing
 .app-footer { text-align:center; color:#9ba79e; font-size:12px; padding-top:30px; line-height:1.8; }
 .visually-hidden { position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important; }
 @media(max-width:1110px) { .header-inner,.shell { padding-left:22px; padding-right:22px; } .workspace { grid-template-columns:minmax(310px,.94fr) minmax(380px,1.06fr); gap:14px; } .paper { padding:37px 32px; } .preview-area { padding:22px 18px; } .panel-head { padding-left:18px; padding-right:18px; } .panel-body,.output-tools { padding-left:18px; padding-right:18px; } .source-input { min-height:400px; } }
-@media(max-width:790px) { .workspace { display:flex; flex-direction:column; } .panel { width:100%; } .flow-note { display:none; } .hero { padding-bottom:22px; } .source-input { min-height:310px; } .preview-area { min-height:400px; } .output-tools { position:static; box-shadow:none; } .paper { min-height:370px; } .empty { min-height:280px; } }
-@media(max-width:470px) { .header-inner { padding:16px; } .shell { padding:23px 12px 44px; } .privacy { padding:7px 9px; font-size:10px; } .brand-name { font-size:19px; } .brand-mark { height:36px; width:36px; } h1 { font-size:25px; } .hero p { font-size:12.5px; } .panel-head { padding-top:18px; } .panel-title { font-size:16px; } .panel-help { font-size:11px; } .preview-area { padding:16px 10px; } .paper { padding:28px 23px; } .preview-area.phone .paper { max-width:350px; padding:28px 18px; } .article { font-size:16px; } .button-grid { grid-template-columns:1fr 1fr; } .action.featured { grid-column:span 2; } .edit-hint { display:none; } .compat-quick { display:none; } .compat-note summary { padding:10px; } }
+@media(max-width:790px) {
+ .workspace { display:flex; flex-direction:column; } .panel { width:100%; } .flow-note { display:none; } .hero { padding-bottom:22px; }
+ .source-input { min-height:275px; } .output-tools { position:static; box-shadow:none; }
+ .preview-area,.preview-area.phone { min-height:330px; padding:0; background:#fff; overflow:visible; border-radius:0 0 18px 18px; }
+ .paper,.preview-area.phone .paper { width:100%; max-width:none; min-height:340px; border:0; border-radius:0 0 18px 18px; padding:37px 26px 46px; box-shadow:none; }
+ .post-title,.preview-area.phone .post-title { font-size:26px; }
+ .article,.preview-area.phone .article { font-size:17.5px; line-height:1.95; }
+ .article h2,.preview-area.phone .article h2 { font-size:21px; }
+ .empty { min-height:240px; }
+ .button-grid { grid-template-columns:1fr 1fr; }
+ .action.featured { grid-column:span 2; min-height:49px; font-size:14px; }
+ .mobile-extra-toggle { display:block; background:#f5f9f6; }
+ .button-grid:not(.show-extra) #copyTitleBtn,.button-grid:not(.show-extra) .action.secondary { display:none; }
+ .button-grid.show-extra #copyTitleBtn,.button-grid.show-extra .action.secondary { display:block; }
+ .action { min-height:45px; }
+}
+@media(max-width:470px) {
+ .header-inner { padding:15px 14px; } .shell { padding:20px 10px 42px; }
+ .privacy { padding:7px 9px; font-size:10px; } .brand-name { font-size:19px; } .brand-mark { height:36px; width:36px; }
+ h1 { font-size:25px; } .hero p { font-size:13px; }
+ .panel-head { padding:17px 16px 15px; } .panel-title { font-size:16px; } .panel-help { font-size:11px; }
+ .panel-body,.output-tools { padding-left:16px; padding-right:16px; }
+ .source-input { min-height:255px; font-size:15px; line-height:1.8; }
+ .paper,.preview-area.phone .paper { max-width:none; padding:35px 20px 42px; }
+ .article,.preview-area.phone .article { font-size:17.5px; line-height:1.96; }
+ .article > p.intro-paragraph,.preview-area.phone .article > p.intro-paragraph { font-size:18px; }
+ .article h2,.preview-area.phone .article h2 { font-size:21px; margin-top:40px; }
+ .edit-hint { display:none; } .compat-quick { display:none; } .compat-note summary { padding:10px; }
+ .toast { max-width:calc(100vw - 28px); white-space:normal; text-align:center; }
+}
 </style>
 </head>
 <body>
@@ -157,14 +189,14 @@ h1 { font-size:clamp(24px,2.6vw,36px); line-height:1.3; margin:0; letter-spacing
    <hr class="divider">
    <div class="settings-title">편집 설정</div>
    <div class="controls"><label><span class="control-name">글 스타일</span><select id="styleSelect" class="control"><option value="column">차분한 칼럼</option><option value="warm">따뜻한 에세이</option><option value="info">선명한 정보글</option></select></label>
-   <label><span class="control-name">문단 길이</span><select id="lengthSelect" class="control"><option value="short">짧게 · 모바일 중심</option><option value="normal" selected>보통 · 추천</option><option value="long">길게 · 원문 중심</option></select></label></div>
+   <label><span class="control-name">문단 길이</span><select id="lengthSelect" class="control"><option value="short" selected>짧게 · 모바일 추천</option><option value="normal">보통 · 여유롭게</option><option value="long">길게 · 원문 중심</option></select></label></div>
    <div class="checks"><label class="check"><input type="checkbox" id="emphasisCheck" checked> 핵심 문장 강조</label><label class="check"><input type="checkbox" id="preserveCheck" checked> 원래 문단 구분 유지</label><label class="check"><input type="checkbox" id="titleCheck" checked> 첫 줄 제목 감지</label></div>
-   <p class="small-note">원문의 띄어쓰기와 직접 넣은 줄바꿈을 보존합니다. 문단 사이에는 빈 줄을 넣어 네이버에서 읽기 좋게 복사합니다.</p>
+   <p class="small-note">원문의 띄어쓰기와 직접 넣은 줄바꿈을 보존합니다. 기본은 모바일 독자를 위한 짧은 문단이며, 네이버 복사 시 실제 빈 줄도 포함합니다.</p>
    <button type="button" id="formatBtn" class="primary">글 자동 편집하기 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
   </div></section>
   <section class="panel preview-panel" aria-label="완성본 미리보기"><div class="panel-head result-head"><div><span class="panel-number">02</span><span class="panel-title">완성본 미리보기</span></div><div class="preview-tools"><div class="toggle" aria-label="화면 미리보기"><button id="pcBtn" type="button" aria-pressed="true">PC</button><button id="mobileBtn" type="button" aria-pressed="false">모바일</button></div></div></div>
    <div class="output-tools"><div class="output-top"><span id="resultCount" class="output-count" aria-live="polite">편집 전 · 결과를 생성해 주세요</span><span class="edit-hint">미리보기 글을 직접 수정할 수 있어요</span></div>
-   <div class="button-grid"><button type="button" id="copyRichBtn" class="action featured" disabled>네이버 서식 복사</button><button type="button" id="copyPlainBtn" class="action" disabled>텍스트만 복사</button><button type="button" id="copyTitleBtn" class="action" disabled>제목 복사</button><button type="button" id="downloadHtmlBtn" class="action secondary" disabled>HTML 파일 저장</button><button type="button" id="downloadTextBtn" class="action secondary" disabled>TXT 파일 저장</button><button type="button" id="selectAllBtn" class="action secondary" disabled>완성본 전체 선택</button></div>
+   <div class="button-grid" id="buttonGrid"><button type="button" id="copyRichBtn" class="action featured" disabled>네이버 서식 복사</button><button type="button" id="copyPlainBtn" class="action" disabled>텍스트만 복사</button><button type="button" id="moreActionsBtn" class="action mobile-extra-toggle" aria-expanded="false" aria-controls="buttonGrid" disabled>다른 기능 보기 ▾</button><button type="button" id="copyTitleBtn" class="action" disabled>제목 복사</button><button type="button" id="downloadHtmlBtn" class="action secondary" disabled>HTML 파일 저장</button><button type="button" id="downloadTextBtn" class="action secondary" disabled>TXT 파일 저장</button><button type="button" id="selectAllBtn" class="action secondary" disabled>완성본 전체 선택</button></div>
    <details class="compat-note">
     <summary><span class="compat-summary-label"><span class="compat-icon">ⓘ</span><strong>네이버 붙여넣기</strong><span class="compat-quick">서식 복사 → 블로그 본문에서 Ctrl+V</span></span><span class="compat-expand">자세히 보기 <span class="compat-chevron">⌄</span></span></summary>
     <div class="compat-detail">① <b>네이버 서식 복사</b> 클릭 → ② 네이버 블로그 본문 클릭 → ③ <b>Ctrl+V</b> (Ctrl+Shift+V는 사용하지 마세요). 굵기·글자 크기·강조색과 함께 <b>문단 사이 빈 줄과 직접 넣은 줄바꿈</b>도 복사합니다. 다만 네이버가 외부 서식을 일부 바꿀 수 있으니 발행 전에 확인해 주세요. ‘텍스트만 복사’는 모든 서식을 빼고 붙여넣는 기능입니다.</div>
@@ -387,6 +419,7 @@ function renderBlocks(blocks,emphasis){
    case 'hr':el=document.createElement('hr');body.appendChild(el);break;
   }
  }
+ if(body.firstElementChild?.tagName==='P' && !body.firstElementChild.classList.contains('ref'))body.firstElementChild.classList.add('intro-paragraph');
  lastAnalysis={paragraphs:pcount,heads:hcount,highlights:marked,refs:refCount};
  updateStats();
 }
@@ -438,23 +471,24 @@ function clean(node){
 }
 function renderInlineHtml(){
  const theme=styles[$('styleSelect').value]||styles.column;
- const wrapper=document.createElement('div');wrapper.style.cssText=`max-width:760px;margin:0 auto;color:${theme.text};font-family:${theme.font};font-size:17px;line-height:1.95;letter-spacing:-.02em;word-break:keep-all;overflow-wrap:anywhere;white-space:pre-wrap;`;
+ const wrapper=document.createElement('div');wrapper.style.cssText=`max-width:760px;margin:0 auto;color:${theme.text};font-family:${theme.font};font-size:18px;line-height:1.94;letter-spacing:-.01em;word-break:keep-all;overflow-wrap:anywhere;white-space:pre-wrap;`;
  for(const child of body.childNodes){const c=clean(child);wrapper.appendChild(c);}
- const rule=`font-family:${theme.font};line-height:1.9;letter-spacing:-.02em;`;
+ const rule=`font-family:${theme.font};line-height:1.92;letter-spacing:-.01em;`; 
  for(const el of wrapper.querySelectorAll('*')){
   const t=el.tagName.toLowerCase();
   const stylesByTag={
-   p:`margin:0 0 22px;font-size:17px;color:${theme.text};${rule}`,
-   h2:`font-size:23px;line-height:1.5;color:${theme.head};font-weight:800;margin:38px 0 16px;${rule}${$('styleSelect').value==='info'?'border-left:4px solid #3078aa;padding-left:13px;':''}`,
-   h3:`font-size:19px;font-weight:750;margin:30px 0 13px;color:${theme.head};${rule}`,
+   p:`margin:0 0 25px;font-size:18px;color:${theme.text};${rule}`,
+   h2:`font-size:22px;line-height:1.5;color:${theme.head};font-weight:800;margin:39px 0 17px;border-left:3px solid ${theme.quoteBorder};padding-left:13px;${rule}`,
+   h3:`font-size:19px;font-weight:750;margin:33px 0 14px;color:${theme.head};${rule}`,
    strong:`font-weight:800;color:${theme.strong};`,b:`font-weight:800;color:${theme.strong};`,em:'font-style:italic;',i:'font-style:italic;',
-   blockquote:`margin:24px 0 27px;border-left:3px solid ${theme.quoteBorder};background:${theme.quoteBg};padding:16px 20px;color:${theme.quote};font-size:16px;line-height:1.9;`,
-   ul:`margin:0 0 24px;padding-left:25px;line-height:1.9;`,ol:`margin:0 0 24px;padding-left:25px;line-height:1.9;`,li:'margin-bottom:8px;',
+   blockquote:`margin:26px 0 29px;border-left:3px solid ${theme.quoteBorder};background:${theme.quoteBg};border-radius:0 10px 10px 0;padding:18px 19px;color:${theme.quote};font-size:17px;line-height:1.9;`,
+   ul:`margin:0 0 25px;padding-left:25px;line-height:1.95;`,ol:`margin:0 0 25px;padding-left:25px;line-height:1.95;`,li:'margin-bottom:12px;',
    a:`color:${theme.head};text-decoration:underline;`,hr:`border:0;border-top:1px solid ${theme.rule};margin:34px 0;`,
    code:`font-family:monospace;font-size:14px;background:#f1f3f1;padding:2px 4px;border-radius:3px;`
   };
   if(stylesByTag[t])el.style.cssText=stylesByTag[t];
  }
+ if(body.firstElementChild?.classList.contains('intro-paragraph') && wrapper.firstElementChild?.tagName==='P'){wrapper.firstElementChild.style.cssText+=`font-size:18.5px;color:${theme.strong};line-height:1.95;`; }
  // Naver-compatible simple inline formatting; source attribution sections stay readable.
  const refs=body.querySelectorAll('p.ref');
  if(refs.length){const clones=wrapper.querySelectorAll('p');let refTexts=new Set([...refs].map(n=>n.textContent.trim()));for(const p of clones){if(refTexts.has(p.textContent.trim()))p.style.cssText+=`font-size:14px;color:${theme.ref};line-height:1.75;`;}}
@@ -501,7 +535,7 @@ function makeNaverHTML(){
   current.style.marginBottom='0';
   // A separate empty line survives even if the editor strips paragraph margins.
   const spacer=document.createElement('p');
-  spacer.style.cssText='margin:0;padding:0;line-height:1.4;font-size:17px;';
+  spacer.style.cssText=children[i+1].matches('h2,h3')?'margin:0;padding:0;line-height:1.5;font-size:16px;':current.matches('h2,h3')?'margin:0;padding:0;line-height:1.2;font-size:10px;':'margin:0;padding:0;line-height:1.3;font-size:12px;';
   spacer.appendChild(document.createTextNode('\u00a0'));
   current.after(spacer);
  }
@@ -553,7 +587,8 @@ source.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)
 title.addEventListener('input',()=>{explicitTitle=!!title.value.trim();if(formatted){displayTitle();$('copyTitleBtn').disabled=!title.value.trim();}});
 body.addEventListener('input',()=>{updateStats();});
 $('styleSelect').addEventListener('change',e=>paper.dataset.style=e.target.value);
-$('pcBtn').addEventListener('click',()=>setMode('pc'));$('mobileBtn').addEventListener('click',()=>setMode('mobile'));
+$('moreActionsBtn').addEventListener('click',()=>{const grid=$('buttonGrid'),on=grid.classList.toggle('show-extra');$('moreActionsBtn').setAttribute('aria-expanded',String(on));$('moreActionsBtn').textContent=on?'다른 기능 접기 ▴':'다른 기능 보기 ▾';});
+ $('pcBtn').addEventListener('click',()=>setMode('pc'));$('mobileBtn').addEventListener('click',()=>setMode('mobile'));
 $('formatBtn').addEventListener('click',formatArticle);
 $('copyPlainBtn').addEventListener('click',copyPlain);$('copyRichBtn').addEventListener('click',copyRich);$('copyTitleBtn').addEventListener('click',copyTitle);
 $('downloadHtmlBtn').addEventListener('click',downloadHTML);$('downloadTextBtn').addEventListener('click',downloadTXT);$('selectAllBtn').addEventListener('click',selectAll);
@@ -561,7 +596,8 @@ $('sampleBtn').addEventListener('click',()=>{source.value=example;title.value=''
 $('clearBtn').addEventListener('click',()=>{source.value='';title.value='';explicitTitle=false;formatted=false;lastAnalysis=null;body.replaceChildren();body.hidden=true;previewTitle.hidden=true;$('empty').hidden=false;$('resultCount').textContent='편집 전 · 결과를 생성해 주세요';document.querySelectorAll('.action').forEach(x=>x.disabled=true);countInput();source.focus();notify('입력과 결과를 비웠습니다.');});
 $('fileBtn').addEventListener('click',()=>$('fileInput').click());
 $('fileInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>3*1024*1024){notify('3MB 이하 텍스트 파일만 열 수 있습니다.');return;}try{source.value=await file.text();title.value='';explicitTitle=false;countInput();notify('텍스트 파일을 불러왔습니다. 자동 편집을 눌러주세요.');}catch(err){notify('파일을 읽지 못했습니다.');}e.target.value='';});
-countInput();
+setMode(window.matchMedia('(max-width:790px)').matches?'mobile':'pc');
+ countInput();
 })();
 </script>
 </body>
