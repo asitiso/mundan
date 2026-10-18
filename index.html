@@ -503,6 +503,11 @@ async function copyTitle(){const t=title.value.trim();if(!t)return notify('게�
 /** 본문 복사: 리치 HTML과 일반 텍스트를 함께 전달합니다. */
 function makeNaverHTML(){
  const root=renderInlineHtml();
+ // 네이버 붙여넣기 글씨 크기만 v4 기준으로 복원합니다. 모바일 미리보기·HTML 저장은 변경하지 않습니다.
+ root.style.fontSize='17px';
+ for(const p of root.querySelectorAll('p')){if(p.style.fontSize!=='14px')p.style.fontSize='17px';}
+ for(const h2 of root.querySelectorAll('h2'))h2.style.fontSize='23px';
+ for(const quote of root.querySelectorAll('blockquote'))quote.style.fontSize='16px';
  // 편집기가 제목 태그를 다른 태그로 바꾸더라도 크기·색·굵기가 남도록 인라인 span을 추가합니다.
  for(const heading of root.querySelectorAll('h2,h3')){
   const span=document.createElement('span');
